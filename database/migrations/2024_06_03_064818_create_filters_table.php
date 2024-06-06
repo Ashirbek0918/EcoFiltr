@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Category;
+use App\Models\Order;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,14 +13,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('filters', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('phone');
-            $table->string('address');
+            $table->foreignIdFor(Category::class);
+            $table->string('expiration_date');
+            $table->foreignIdFor(Order::class);
+            $table->timestamp('ordered_at');
+            $table->timestamp('changed_at')->nullable();
             $table->timestamps();
-
-            $table->index(['name', 'phone','address']);
         });
     }
 
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('filters');
     }
 };
