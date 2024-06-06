@@ -16,14 +16,13 @@ class UsersWithFiltersREsource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $status = $request->input('status');
         return [
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
             'address' => $this->address,
             'created_at' => $this->created_at,
-            'orders' => OrdersWithFiltersREsource::collection($this->orders->where('status',$status)),
+            'orders' => OrdersWithFiltersREsource::collection($this->orders->where('status','active')),
         ];
     }
 }

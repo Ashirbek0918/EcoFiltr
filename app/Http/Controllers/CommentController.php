@@ -5,15 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Comment\CommentAddRequest;
 use App\Models\Comment;
 use App\Models\Filter;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
     public function create(CommentAddRequest $request){
         $data = $request->validated();
-        $filter = Filter::findOrFail($data['filter_id']);
-        $filter->comments()->create([
-            'filter_id' => $filter->id,
+        $order = Order::findOrFail($data['order_id']);
+        $order->comments()->create([
+            'order_id' => $order->id,
             'comment' => $data['comment'],
         ]);
         return response()->json([

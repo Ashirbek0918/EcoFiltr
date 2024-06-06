@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Filter;
+use App\Models\Order;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->string('comment');
-            $table->foreignIdFor(Filter::class)->references('id')->on('filters')->onDelete('cascade');
+            $table->foreignIdFor(Order::class)->references('id')->on('filters')->onDelete('cascade');
             $table->timestamps();
         });
     }

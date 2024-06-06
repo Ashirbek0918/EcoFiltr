@@ -4,6 +4,7 @@ namespace App\Http\Resources\Order;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Resources\Comment\CommentsResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Filter\ByTpesFiltersResource;
 
@@ -36,6 +37,7 @@ class OrdersWithByTypesFiltersREsource extends JsonResource
             ],
             'address' => $this->address,
             'created_at' => $this->created_at->format('Y-m-d'),
+            'comments' => CommentsResource::collection($this->comments),
             'filters' => ByTpesFiltersResource::collection($filters)
         ];
     }

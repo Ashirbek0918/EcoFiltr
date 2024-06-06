@@ -60,13 +60,13 @@ class UserController extends Controller
                            'status' => $order->status,
                             'created_at' => $order->created_at,
                             'updated_at' => $order->updated_at,
+                            'comments' => CommentsResource::collection($order->comments),
                             'filters' => $order->filters->map(function($product){
                                 return [
                                     'id' => $product->id,
                                     'ordered_at' => $product->ordered_at,
                                     'expiration_date' => $product->expiration_date,
                                     'changed_at' => $product->changed_at,
-                                    'comments' => CommentsResource::collection($product->comments)
                                 ];
                             })
                         ];

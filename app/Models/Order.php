@@ -31,4 +31,9 @@ class Order extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

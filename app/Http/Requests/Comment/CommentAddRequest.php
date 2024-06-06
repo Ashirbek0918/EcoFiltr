@@ -22,7 +22,7 @@ class CommentAddRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'filter_id' =>'required|exists:filters,id',
+            'order_id' =>'required|exists:orderss,id',
             'comment' =>'required|string'
         ];
     }

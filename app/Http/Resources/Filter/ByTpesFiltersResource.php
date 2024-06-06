@@ -21,7 +21,6 @@ class ByTpesFiltersResource extends JsonResource
             'ordered_at' => $this->ordered_at,
             'changed_at' => $this->changed_at,
             'expiration_date' => $this->expiration_date,
-            'comments' => CommentsResource::collection($this->comments),
         ];
     }
 }

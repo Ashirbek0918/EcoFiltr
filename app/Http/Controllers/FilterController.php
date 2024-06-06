@@ -68,8 +68,7 @@ class FilterController extends Controller
 
     public function all(Request $request)
     {
-        $userIds = Order::where('status', $request->input('status'))->pluck('user_id')->toArray();
-        $query = User::whereIn('id', $userIds);
+        $query = User::query();
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($query) use ($search) {
