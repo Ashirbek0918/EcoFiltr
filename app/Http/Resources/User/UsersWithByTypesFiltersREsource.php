@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources\User;
 
+use App\Http\Resources\Filter\FiltersResource;
 use Carbon\Carbon;
-use App\Models\Filter;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Order\OrdersWithByTypesFiltersREsource;
 
 class UsersWithByTypesFiltersREsource extends JsonResource
 {
@@ -16,31 +15,59 @@ class UsersWithByTypesFiltersREsource extends JsonResource
      *
      * @return array<string, mixed>
      */
-   
     public function toArray(Request $request): array
     {
-        $type= $request->route('filterType');
-        $date = ($type == 'today') ? Carbon::now() : Carbon::tomorrow();
-        $dateStr = $date->toDateString();
-        $filteredOrdersQuery = $this->orders()
-            ->whereHas('filters', function ($query) use ($dateStr, $type) {
-                if ($type == 'expired') {
-                    $query->whereRaw("DATE(changed_at + INTERVAL expiration_date MONTH) < ?", [$dateStr]);
-                } else {
-                    $query->whereRaw("DATE(changed_at + INTERVAL expiration_date MONTH) = ?", [$dateStr]);
-                }
-            })
-            ->whereHas('filters.order', function ($query) {
-                $query->where('status', 'active');
-            });
-        $filteredOrders = $filteredOrdersQuery->get();
+        $filters = $this->getFilteredFilters($request);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
             'address' => $this->address,
+            'status' => $this->status,
             'created_at' => $this->created_at->format('Y-m-d'),
-            'orders' => OrdersWithByTypesFiltersREsource::collection($filteredOrders)
+            'description' => $this->description,
+            'category' => $this->order()->first()->category->type,
+            'filters' => FiltersResource::collection($filters)
         ];
+    }
+
+    /**
+     * Get filtered filters based on the request parameters.
+     *
+     * @param Request $request
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    private function getFilteredFilters(Request $request): Collection
+    {
+        $filterType = $request->input('filter');
+        $date = null;
+
+        if ($filterType == 'today') {
+            $date = Carbon::now()->startOfDay();
+        } elseif ($filterType == 'tomorrow') {
+            $date = Carbon::tomorrow()->startOfDay();
+        } elseif ($filterType == 'expired') {
+            $date = Carbon::now()->startOfDay();
+        }
+
+        $filters = $this->order()->first()->filters;
+        if (!$filterType) {
+            return $filters;
+        }
+        $filtered = $filters->filter(function ($filter) use ($date, $filterType) {
+            $changedAt = Carbon::parse($filter->changed_at);
+            $expired = $changedAt->copy()->addMonths($filter->expiration_date)->endOfDay();
+
+            if ($filterType == 'today' || $filterType == 'tomorrow') {
+                return $expired->isSameDay($date);
+            } elseif ($filterType == 'expired') {
+                return $expired->isBefore($date);
+            }
+
+            return false;
+        });
+
+        return $filtered;
     }
 }

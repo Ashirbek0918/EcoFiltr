@@ -13,10 +13,6 @@ class Order extends Model
 
     protected $guarded= ['id'];
 
-    protected $casts = [
-        'created_at' => 'datetime:d/m/Y', 
-        'updated_at' => 'datetime:d/m/Y',
-    ];
 
     public function user(): BelongsTo
     {
@@ -32,8 +28,5 @@ class Order extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
+    
 }

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone');
             $table->string('address');
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->mediumText('description')->nullable();
             $table->timestamps();
 
             $table->index(['name', 'phone','address']);

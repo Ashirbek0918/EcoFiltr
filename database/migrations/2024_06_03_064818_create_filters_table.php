@@ -1,10 +1,11 @@
 <?php
 
-use App\Models\Category;
+use App\Models\User;
 use App\Models\Order;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Category;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -16,8 +17,10 @@ return new class extends Migration
         Schema::create('filters', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Category::class);
-            $table->string('expiration_date');
+            $table->integer('expiration_date');
             $table->foreignIdFor(Order::class);
+            $table->foreignIdFor(User::class);
+            $table->enum('status', ['not_expired', 'be_changed', 'expired'])->default('not_expired');
             $table->timestamp('ordered_at');
             $table->timestamp('changed_at')->nullable();
             $table->timestamps();

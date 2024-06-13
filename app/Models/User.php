@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,8 +22,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'phone',
-        'password',
-        'address'
+        'address',
+        'status',
     ];
 
     /**
@@ -30,9 +31,6 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-        'password',
-    ];
 
     /**
      * The attributes that should be cast.
@@ -40,13 +38,8 @@ class User extends Authenticatable
      * @var array<string, string>
      */
 
-    protected $casts = [
-        'created_at' => 'datetime:d/m/Y', 
-        'updated_at' => 'datetime:d/m/Y',
-    ];
-
-    public function orders(): HasMany
+    public function order(): HasOne
     {
-        return $this->hasMany(Order::class);
+        return $this->hasOne(Order::class);
     }
 }

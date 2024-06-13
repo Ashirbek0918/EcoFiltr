@@ -23,28 +23,14 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('getme', [AuthController::class, 'getme']);
     Route::delete('logout', [AuthController::class, 'logout']);
-
-
     //user
-    Route::post('user/create', [UserController::class, 'create']);
+    Route::post('user/create', [OrderController::class, 'create']);
     Route::put('user/update/{user}', [UserController::class, 'update']);
     Route::delete('user/delete/{user}', [UserController::class, 'delete']);
-    Route::get('users/{user}', [UserController::class, 'about']);
-
-    //order 
-    Route::post('order/create', [OrderController::class, 'create']);
-    Route::put('order/update/{order}', [OrderController::class, 'update']);
-    Route::get('orders/archive', [OrderController::class, 'archiveOrders']);
-    Route::delete('order/delete/{order}', [OrderController::class, 'delete']);
-
+    //update description 
+    Route::put('user/{user}', [OrderController::class, 'update']);
+    Route::get('user/about/{user}', [UserController::class, 'about']);
     //filter
-    Route::get('users/filters/all', [FilterController::class, 'all']);
-    Route::get('users/filters/{filterType}', [FilterController::class, 'getFilteredUsers']);
-    Route::delete('filter/delete/{filter}', [FilterController::class, 'delete']);
-
-
-    Route::post('comment/create', [CommentController::class, 'create']);
-    Route::put('comment/update/{comment}', [CommentController::class, 'update']);
-    Route::delete('comment/delete/{comment}', [CommentController::class, 'delete']);
-
+    Route::get('users/filters/all', [FilterController::class, 'getFilteredUsers']);
+    Route::put('filter/update/{filter}', [FilterController::class, 'update']);
 });

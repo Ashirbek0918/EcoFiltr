@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
 class Filter extends Model
 {
@@ -13,32 +13,28 @@ class Filter extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'created_at' => 'datetime:Y-m-d',
-        'updated_at' => 'datetime:Y-m-d',
-    ];
-
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
-
-    public static function getFiltersByDate($date, $filterType)
+    public static function getfilters()
     {
-        $dateStr = $date->toDateString();
-        if ($filterType == 'expired') {
-            return self::whereRaw("DATE(changed_at + INTERVAL expiration_date MONTH) < ?", [$dateStr])
-                ->whereHas('order', function ($query) {
-                    $query->where('status', 'active');
-                })
-                ->get();
-        } else {
-            return self::whereRaw("DATE(changed_at + INTERVAL expiration_date MONTH) = ?", [$dateStr])
-                ->whereHas('order', function ($query) {
-                    $query->where('status', 'active');
-                })
-                ->get();
-        }
+        $date = Carbon::now()->startOfDay();
+        $filters = static::all();
+        $filters->map(function ($filter) use ($date) {
+            $changedAt = Carbon::parse($filter->changed_at);
+            $expired = $changedAt->copy()->addMonths($filter->expiration_date)->startOfDay();
+    
+            if ($expired == Carbon::now()->startOfDay()) {
+                $filter->update(['status' => 'be_changed']);
+            } elseif ($expired->lessThan($date)) {
+                $filter->update(['status' => 'expired']);
+            } elseif ($expired == Carbon::tomorrow()->startOfDay()) {
+                $filter->update(['status' => 'be_changed']);
+            }else{
+                $filter->update(['status' => 'not_expired']);
+            }
+        });
+        return $filters;
     }
-
 }

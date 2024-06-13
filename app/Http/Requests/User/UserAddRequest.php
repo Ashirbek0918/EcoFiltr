@@ -22,9 +22,12 @@ class UserAddRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' =>'required|string',
-            'phone' =>'required|string|unique:users,phone',
-            'address' =>'required|string',
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'address' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'expiration_date' => 'array',
+            'expiration_date.*' => 'numeric',
         ];
     }
 }

@@ -17,8 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Category::class);
-            $table->string('address');
-            $table->enum('status',['active','stopped','deleted'])->default('active');
             $table->timestamps();
         });
     }
