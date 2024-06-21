@@ -20,10 +20,12 @@ class OrderController extends Controller
             $data = $request->validated();
             $category = Category::findOrFail($data['category_id']);
             DB::beginTransaction();
+            $created_at = $data['created_at'] ?? Carbon::now();
             $user = User::create([
                 'name' => $data['name'],
                 'phone' => $data['phone'],
                 'address' => $data['address'],
+                'created_at' => $created_at,
             ]);
             $order = Order::create([
                 'user_id' => $user->id,
@@ -31,24 +33,39 @@ class OrderController extends Controller
                 'status' => 'active',
             ]);
             $filterExpirationDates = $data['expiration_date'];
-            if(empty($filterExpirationDates)){
-                if($category->id == 1){
+            $filterDates = [];
+            if (empty($filterExpirationDates)) {
+                if ($category->id == 1) {
                     $filterExpirationDates = [2, 4];
-                }else if($category->id == 2){
+                    $filterDates[] = $request->input('first_date') ?? Carbon::today();
+                    $filterDates[] = $request->input('second_date') ?? Carbon::today();
+                } else if ($category->id == 2) {
                     $filterExpirationDates = [6];
+                    $filterDates[] = $request->input('first_date') ?? Carbon::today();
                 }
             }
-            $filters = array_map(function ($expirationDate) use ($order, $category) {
-                return [
+            for ($i = 0; $i < count($filterExpirationDates); $i++) {
+                Filter::create([
                     'order_id' => $order->id,
                     'user_id' => $order->user->id,
-                    'ordered_at' => Carbon::now()->subMonths(3)->addDays(12),
-                    'expiration_date' => $expirationDate,
+                    'ordered_at' => $filterDates[$i],
+                    'expiration_date' => $filterExpirationDates[$i],
                     'category_id' => $category->id,
-                    'changed_at' => Carbon::now()->subMonths(3)->addDays(12),
-                ];
-            }, $filterExpirationDates);
-            Filter::insert($filters);
+                    'changed_at' => $filterDates[$i],
+                ]);
+            }
+            // $filteradded = $data['filteradded'] ?? Carbon::today();
+            // $filters = array_map(function ($expirationDate) use ($order, $category,$filteradded) {
+            //     return [
+            //         'order_id' => $order->id,
+            //         'user_id' => $order->user->id,
+            //         'ordered_at' => $filteradded,
+            //         'expiration_date' => $expirationDate,
+            //         'category_id' => $category->id,
+            //         'changed_at' => $filteradded,
+            //     ];
+            // }, $filterExpirationDates);
+            // Filter::insert($filters);
             DB::commit();
             return response()->json([
                 'status' => true,
@@ -64,5 +81,4 @@ class OrderController extends Controller
             ], 500);
         }
     }
-   
 }
